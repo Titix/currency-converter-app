@@ -26,9 +26,15 @@ public class CurrencyConversionService {
             ExchangeRate fromRate = findExchangeRate(rates, request.getFromCurrency());
             ExchangeRate toRate = findExchangeRate(rates, request.getToCurrency());
             
-            if (fromRate == null || toRate == null) {
+            if (fromRate == null) {
                 CurrencyConversionResponse response = new CurrencyConversionResponse();
-                response.setMessage("Exchange rate not found for one or both currencies");
+                response.setMessage("Currency '" + request.getFromCurrency() + "' is not available. Please select from available currencies.");
+                return response;
+            }
+            
+            if (toRate == null) {
+                CurrencyConversionResponse response = new CurrencyConversionResponse();
+                response.setMessage("Currency '" + request.getToCurrency() + "' is not available. Please select from available currencies.");
                 return response;
             }
             
