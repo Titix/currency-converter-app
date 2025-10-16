@@ -4,7 +4,7 @@ import com.example.currencyconverter.model.CurrencyConversionRequest;
 import com.example.currencyconverter.model.CurrencyConversionResponse;
 import com.example.currencyconverter.model.ExchangeRate;
 import com.example.currencyconverter.service.CurrencyConversionService;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
