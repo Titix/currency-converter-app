@@ -7,7 +7,10 @@ A Spring Boot web application that provides currency conversion functionality us
 - **Real-time Exchange Rates**: Fetches current exchange rates from Magyar Nemzeti Bank
 - **REST API**: Provides RESTful endpoints for currency conversion
 - **Modern Web UI**: Clean, responsive interface built with Bootstrap and Thymeleaf
-- **Multiple Currencies**: Supports 40+ major world currencies including EUR, USD, GBP, CHF, JPY, CAD, AUD, RON, CZK, PLN, BGN, HRK, RSD, UAH, RUB, TRY, NOK, SEK, DKK, CNY, INR, KRW, SGD, HKD, BRL, MXN, NZD, ZAR, ILS, AED and more
+- **Geographical Currency Grouping**: Currencies are organized by geographical regions (European, Asian, American, Oceanian, African)
+- **HUF Default Currency**: Hungarian Forint (HUF) is set as the default/main currency and always appears first
+- **Multiple Currencies**: Supports major world currencies from Magyar Nemzeti Bank including EUR, USD, GBP, CHF, JPY, CAD, AUD, CZK, PLN, BGN, HRK, RSD, UAH, RUB, TRY, NOK, SEK, DKK, CNY, INR, KRW, SGD, HKD, BRL, MXN, NZD, ZAR, ILS, AED and more
+- **Clear Functionality**: Reset form and clear conversion results with a single click
 - **Input Validation**: Comprehensive validation for all user inputs
 - **Error Handling**: Robust error handling with user-friendly messages
 
@@ -103,7 +106,7 @@ curl http://localhost:8080/api/currencies
 
 ## Exchange Rate Source
 
-The application fetches exchange rates from the Magyar Nemzeti Bank (MNB) SOAP API. If the MNB API is not accessible, the application falls back to mock exchange rates for demonstration purposes.
+The application fetches exchange rates from the Magyar Nemzeti Bank (MNB) SOAP API. The application uses real-time data from MNB and displays proper error messages if the API is not accessible.
 
 ## Project Structure
 
@@ -121,6 +124,7 @@ src/
 │   │   │   └── ExchangeRate.java               # Exchange rate model
 │   │   └── service/
 │   │       ├── CurrencyConversionService.java  # Business logic
+│   │       ├── CurrencyGroupingService.java    # Currency geographical grouping
 │   │       └── MnbExchangeRateService.java     # MNB API integration
 │   └── resources/
 │       ├── application.properties               # Configuration
@@ -136,7 +140,7 @@ The application can be configured through `application.properties`:
 ```properties
 server.port=8080
 spring.application.name=currency-converter
-mnb.api.url=https://www.mnb.hu/arfolyamok.asmx
+mnb.api.url=http://www.mnb.hu/arfolyamok.asmx
 mnb.api.timeout=10000
 ```
 
