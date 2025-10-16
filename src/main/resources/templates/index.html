@@ -24,17 +24,20 @@
                             <p th:text="${error}" class="mb-0"></p>
                         </div>
                         
-                        <form id="conversionForm" th:if="${currencies != null and !currencies.empty}">
+                        <form id="conversionForm" th:if="${groupedCurrencies != null and !groupedCurrencies.empty}">
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="fromCurrency" class="form-label">From Currency</label>
                                         <select class="form-select" id="fromCurrency" required>
                                             <option value="">Select currency</option>
-                                            <option th:each="currency : ${currencies}" 
-                                                    th:value="${currency.currency}" 
-                                                    th:text="${currency.currency}">
-                                            </option>
+                                            <optgroup th:each="group : ${groupedCurrencies}" th:label="${group.key}">
+                                                <option th:each="currency : ${group.value}" 
+                                                        th:value="${currency.currency}" 
+                                                        th:text="${currency.currency}"
+                                                        th:selected="${currency.currency == 'HUF'}">
+                                                </option>
+                                            </optgroup>
                                         </select>
                                     </div>
                                 </div>
@@ -50,10 +53,13 @@
                                         <label for="toCurrency" class="form-label">To Currency</label>
                                         <select class="form-select" id="toCurrency" required>
                                             <option value="">Select currency</option>
-                                            <option th:each="currency : ${currencies}" 
-                                                    th:value="${currency.currency}" 
-                                                    th:text="${currency.currency}">
-                                            </option>
+                                            <optgroup th:each="group : ${groupedCurrencies}" th:label="${group.key}">
+                                                <option th:each="currency : ${group.value}" 
+                                                        th:value="${currency.currency}" 
+                                                        th:text="${currency.currency}"
+                                                        th:selected="${currency.currency == 'EUR'}">
+                                                </option>
+                                            </optgroup>
                                         </select>
                                     </div>
                                 </div>
@@ -88,9 +94,9 @@
                     </div>
                 </div>
 
-                <div class="card mt-4" th:if="${currencies != null and !currencies.empty}">
+                <div class="card mt-4" th:if="${groupedCurrencies != null and !groupedCurrencies.empty}">
                     <div class="card-header">
-                        <h5><i class="fas fa-chart-line me-2"></i>Current Exchange Rates</h5>
+                        <h5><i class="fas fa-chart-line me-2"></i>Current Exchange Rates by Region</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -98,18 +104,33 @@
                                 <thead>
                                     <tr>
                                         <th>Currency</th>
-                                        <th>Rate (HUF)</th>
                                         <th>Unit</th>
+                                        <th>Rate (HUF)</th>
                                         <th>Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="currency : ${currencies}">
-                                        <td th:text="${currency.currency}"></td>
-                                        <td th:text="${currency.rate}"></td>
-                                        <td th:text="${currency.unit}"></td>
-                                        <td th:text="${currency.date}"></td>
-                                    </tr>
+                                    <th:block th:each="group : ${groupedCurrencies}">
+                                        <tr>
+                                            <td colspan="4" class="region-header">
+                                                <div th:class="'region-header-' + ${group.key.toLowerCase()}">
+                                                    <i th:class="'fas fa-globe me-2'"></i>
+                                                    <strong th:text="${group.key}"></strong>
+                                                    <span class="badge bg-secondary ms-2" th:text="${#lists.size(group.value)} + ' currencies'"></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr th:each="currency : ${group.value}" th:class="'region-row region-row-' + ${group.key.toLowerCase()}">
+                                            <td>
+                                                <span th:class="'region-indicator region-' + ${group.key.toLowerCase()}" 
+                                                      th:title="${group.key}"></span>
+                                                <span th:text="${currency.currency}"></span>
+                                            </td>
+                                            <td th:text="${currency.unit}"></td>
+                                            <td th:text="${currency.rate}"></td>
+                                            <td th:text="${currency.date}"></td>
+                                        </tr>
+                                    </th:block>
                                 </tbody>
                             </table>
                         </div>

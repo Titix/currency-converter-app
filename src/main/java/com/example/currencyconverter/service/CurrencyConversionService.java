@@ -10,13 +10,18 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CurrencyConversionService {
 
     @Autowired
     private MnbExchangeRateService mnbExchangeRateService;
+    
+    @Autowired
+    private CurrencyGroupingService currencyGroupingService;
 
     public CurrencyConversionResponse convertCurrency(CurrencyConversionRequest request) {
         try {
@@ -96,18 +101,48 @@ public class CurrencyConversionService {
         try {
             List<ExchangeRate> rates = mnbExchangeRateService.getCurrentExchangeRates();
             
-            // Add HUF as base currency
+            // Remove any existing HUF entries from MNB data to avoid duplicates
+            rates.removeIf(rate -> "HUF".equals(rate.getCurrency()));
+            
+            // Create HUF as the base currency
             ExchangeRate hufRate = new ExchangeRate();
             hufRate.setCurrency("HUF");
             hufRate.setRate(BigDecimal.ONE);
             hufRate.setDate(LocalDate.now());
             hufRate.setUnit("1");
-            rates.add(0, hufRate); // Add HUF at the beginning
+            
+            // Add HUF at the beginning (index 0) to ensure it's always first
+            rates.add(0, hufRate);
             
             return rates;
         } catch (Exception e) {
             // Return empty list when MNB API fails - this will be handled by the controller
             return new ArrayList<>();
+        }
+    }
+
+    public Map<String, List<ExchangeRate>> getGroupedCurrencies() {
+        try {
+            List<ExchangeRate> rates = mnbExchangeRateService.getCurrentExchangeRates();
+            
+            // Remove any existing HUF entries from MNB data to avoid duplicates
+            rates.removeIf(rate -> "HUF".equals(rate.getCurrency()));
+            
+            // Create HUF as the base currency
+            ExchangeRate hufRate = new ExchangeRate();
+            hufRate.setCurrency("HUF");
+            hufRate.setRate(BigDecimal.ONE);
+            hufRate.setDate(LocalDate.now());
+            hufRate.setUnit("1");
+            
+            // Add HUF at the beginning (index 0) to ensure it's always first
+            rates.add(0, hufRate);
+            
+            // Group currencies by geographical region
+            return currencyGroupingService.groupCurrenciesByRegion(rates);
+        } catch (Exception e) {
+            // Return empty map when MNB API fails - this will be handled by the controller
+            return new LinkedHashMap<>();
         }
     }
 }

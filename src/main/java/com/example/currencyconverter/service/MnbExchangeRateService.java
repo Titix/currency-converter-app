@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class MnbExchangeRateService {
 
     private final WebClient webClient;
-    private static final String MNB_BASE_URL = "https://www.mnb.hu/webservices/arfolyamok.asmx";
+    private static final String MNB_BASE_URL = "http://www.mnb.hu/arfolyamok.asmx";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public MnbExchangeRateService() {
@@ -31,7 +31,7 @@ public class MnbExchangeRateService {
             String soapRequest = createSoapRequest();
             String response = webClient.post()
                     .header("Content-Type", "text/xml; charset=utf-8")
-                    .header("SOAPAction", "http://www.mnb.hu/webservices/GetCurrentExchangeRates")
+                    .header("SOAPAction", "http://www.mnb.hu/webservices/MNBArfolyamServiceSoap/GetCurrentExchangeRates")
                     .bodyValue(soapRequest)
                     .retrieve()
                     .bodyToMono(String.class)
@@ -74,21 +74,38 @@ public class MnbExchangeRateService {
     private List<ExchangeRate> parseExchangeRates(String xmlResponse) {
         List<ExchangeRate> rates = new ArrayList<>();
         
-        // Parse the XML response to extract exchange rates
-        Pattern ratePattern = Pattern.compile("<Rate currency=\"([^\"]+)\">([^<]+)</Rate>");
-        Matcher matcher = ratePattern.matcher(xmlResponse);
-        
-        while (matcher.find()) {
-            String currency = matcher.group(1);
-            BigDecimal rate = new BigDecimal(matcher.group(2));
+        try {
+            // Extract the inner XML from the SOAP response
+            Pattern resultPattern = Pattern.compile("<GetCurrentExchangeRatesResult>(.*?)</GetCurrentExchangeRatesResult>", Pattern.DOTALL);
+            Matcher resultMatcher = resultPattern.matcher(xmlResponse);
             
-            ExchangeRate exchangeRate = new ExchangeRate();
-            exchangeRate.setCurrency(currency);
-            exchangeRate.setRate(rate);
-            exchangeRate.setDate(LocalDate.now());
-            exchangeRate.setUnit("1");
-            
-            rates.add(exchangeRate);
+            if (resultMatcher.find()) {
+                String innerXml = resultMatcher.group(1);
+                // Decode HTML entities
+                innerXml = innerXml.replace("&lt;", "<").replace("&gt;", ">");
+                
+                // Parse the exchange rates from the inner XML
+                Pattern ratePattern = Pattern.compile("<Rate unit=\"([^\"]+)\" curr=\"([^\"]+)\">([^<]+)</Rate>");
+                Matcher rateMatcher = ratePattern.matcher(innerXml);
+                
+                while (rateMatcher.find()) {
+                    String unit = rateMatcher.group(1);
+                    String currency = rateMatcher.group(2);
+                    String rateStr = rateMatcher.group(3).replace(",", "."); // Replace comma with dot for decimal parsing
+                    BigDecimal rate = new BigDecimal(rateStr);
+                    
+                    ExchangeRate exchangeRate = new ExchangeRate();
+                    exchangeRate.setCurrency(currency);
+                    exchangeRate.setRate(rate);
+                    exchangeRate.setDate(LocalDate.now());
+                    exchangeRate.setUnit(unit);
+                    
+                    rates.add(exchangeRate);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error parsing MNB response: " + e.getMessage());
+            System.err.println("Response was: " + xmlResponse);
         }
         
         return rates;
