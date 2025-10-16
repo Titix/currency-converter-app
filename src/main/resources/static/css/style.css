@@ -30,6 +30,35 @@ body {
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+    background: linear-gradient(135deg, #5a6268 0%, #3d4449 100%);
+}
+
+.btn-secondary:disabled {
+    background: linear-gradient(135deg, #adb5bd 0%, #6c757d 100%);
+    color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-secondary:disabled:hover {
+    background: linear-gradient(135deg, #adb5bd 0%, #6c757d 100%);
+    transform: none;
+    box-shadow: none;
+}
+
 .form-control, .form-select {
     border-radius: 10px;
     border: 2px solid #e9ecef;

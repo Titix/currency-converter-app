@@ -65,14 +65,6 @@ public class CurrencyGroupingService {
         return groupedCurrencies;
     }
     
-    public List<String> getCurrencyRegions() {
-        return new ArrayList<>(CURRENCY_GROUPS.keySet());
-    }
-    
-    public List<String> getCurrenciesInRegion(String region) {
-        return CURRENCY_GROUPS.getOrDefault(region, new ArrayList<>());
-    }
-    
     public String getRegionForCurrency(String currencyCode) {
         for (Map.Entry<String, List<String>> entry : CURRENCY_GROUPS.entrySet()) {
             if (entry.getValue().contains(currencyCode)) {

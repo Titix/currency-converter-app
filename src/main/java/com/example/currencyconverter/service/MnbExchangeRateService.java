@@ -3,11 +3,9 @@ package com.example.currencyconverter.service;
 import com.example.currencyconverter.model.ExchangeRate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,7 +16,6 @@ public class MnbExchangeRateService {
 
     private final WebClient webClient;
     private static final String MNB_BASE_URL = "http://www.mnb.hu/arfolyamok.asmx";
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public MnbExchangeRateService() {
         this.webClient = WebClient.builder()
@@ -104,8 +101,8 @@ public class MnbExchangeRateService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error parsing MNB response: " + e.getMessage());
-            System.err.println("Response was: " + xmlResponse);
+            // Re-throw the exception to be handled by the calling service
+            throw new RuntimeException("Failed to fetch exchange rates from MNB API: " + e.getMessage(), e);
         }
         
         return rates;
