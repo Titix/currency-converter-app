@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class MnbExchangeRateService {
 
     private final WebClient webClient;
-    private static final String MNB_BASE_URL = "https://www.mnb.hu/arfolyamok.asmx";
+    private static final String MNB_BASE_URL = "https://www.mnb.hu/webservices/arfolyamok.asmx";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public MnbExchangeRateService() {
@@ -31,16 +31,23 @@ public class MnbExchangeRateService {
             String soapRequest = createSoapRequest();
             String response = webClient.post()
                     .header("Content-Type", "text/xml; charset=utf-8")
-                    .header("SOAPAction", "http://www.mnb.hu/webservices/")
+                    .header("SOAPAction", "http://www.mnb.hu/webservices/GetCurrentExchangeRates")
                     .bodyValue(soapRequest)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
 
-            return parseExchangeRates(response);
+            List<ExchangeRate> rates = parseExchangeRates(response);
+            
+            // If no rates were parsed (empty response or parsing failed), throw exception
+            if (rates.isEmpty()) {
+                throw new RuntimeException("No exchange rates received from MNB API");
+            }
+            
+            return rates;
         } catch (Exception e) {
-            // Fallback to mock data if MNB API is not accessible
-            return getMockExchangeRates();
+            // Re-throw the exception to be handled by the calling service
+            throw new RuntimeException("Failed to fetch exchange rates from MNB API: " + e.getMessage(), e);
         }
     }
 
@@ -87,19 +94,4 @@ public class MnbExchangeRateService {
         return rates;
     }
 
-    private List<ExchangeRate> getMockExchangeRates() {
-        List<ExchangeRate> mockRates = new ArrayList<>();
-        LocalDate today = LocalDate.now();
-        
-        // Mock exchange rates (HUF as base currency)
-        mockRates.add(new ExchangeRate("EUR", new BigDecimal("400.50"), today, "1"));
-        mockRates.add(new ExchangeRate("USD", new BigDecimal("370.25"), today, "1"));
-        mockRates.add(new ExchangeRate("GBP", new BigDecimal("460.75"), today, "1"));
-        mockRates.add(new ExchangeRate("CHF", new BigDecimal("420.30"), today, "1"));
-        mockRates.add(new ExchangeRate("JPY", new BigDecimal("2.45"), today, "100"));
-        mockRates.add(new ExchangeRate("CAD", new BigDecimal("275.80"), today, "1"));
-        mockRates.add(new ExchangeRate("AUD", new BigDecimal("245.60"), today, "1"));
-        
-        return mockRates;
-    }
 }

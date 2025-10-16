@@ -19,7 +19,11 @@ public class WebController {
     public String index(Model model) {
         try {
             List<ExchangeRate> currencies = currencyConversionService.getAvailableCurrencies();
-            model.addAttribute("currencies", currencies);
+            if (currencies.isEmpty()) {
+                model.addAttribute("error", "Exchange rate service is currently unavailable. Unable to fetch current exchange rates from Magyar Nemzeti Bank. Please try again later.");
+            } else {
+                model.addAttribute("currencies", currencies);
+            }
         } catch (Exception e) {
             model.addAttribute("error", "Failed to load currencies: " + e.getMessage());
         }

@@ -7,7 +7,7 @@ A Spring Boot web application that provides currency conversion functionality us
 - **Real-time Exchange Rates**: Fetches current exchange rates from Magyar Nemzeti Bank
 - **REST API**: Provides RESTful endpoints for currency conversion
 - **Modern Web UI**: Clean, responsive interface built with Bootstrap and Thymeleaf
-- **Multiple Currencies**: Supports major world currencies including EUR, USD, GBP, CHF, JPY, CAD, AUD, and HUF
+- **Multiple Currencies**: Supports 40+ major world currencies including EUR, USD, GBP, CHF, JPY, CAD, AUD, RON, CZK, PLN, BGN, HRK, RSD, UAH, RUB, TRY, NOK, SEK, DKK, CNY, INR, KRW, SGD, HKD, BRL, MXN, NZD, ZAR, ILS, AED and more
 - **Input Validation**: Comprehensive validation for all user inputs
 - **Error Handling**: Robust error handling with user-friendly messages
 

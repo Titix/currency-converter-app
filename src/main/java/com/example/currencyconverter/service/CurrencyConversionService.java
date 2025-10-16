@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -92,16 +93,21 @@ public class CurrencyConversionService {
     }
 
     public List<ExchangeRate> getAvailableCurrencies() {
-        List<ExchangeRate> rates = mnbExchangeRateService.getCurrentExchangeRates();
-        
-        // Add HUF as base currency
-        ExchangeRate hufRate = new ExchangeRate();
-        hufRate.setCurrency("HUF");
-        hufRate.setRate(BigDecimal.ONE);
-        hufRate.setDate(LocalDate.now());
-        hufRate.setUnit("1");
-        rates.add(0, hufRate); // Add HUF at the beginning
-        
-        return rates;
+        try {
+            List<ExchangeRate> rates = mnbExchangeRateService.getCurrentExchangeRates();
+            
+            // Add HUF as base currency
+            ExchangeRate hufRate = new ExchangeRate();
+            hufRate.setCurrency("HUF");
+            hufRate.setRate(BigDecimal.ONE);
+            hufRate.setDate(LocalDate.now());
+            hufRate.setUnit("1");
+            rates.add(0, hufRate); // Add HUF at the beginning
+            
+            return rates;
+        } catch (Exception e) {
+            // Return empty list when MNB API fails - this will be handled by the controller
+            return new ArrayList<>();
+        }
     }
 }

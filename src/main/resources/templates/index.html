@@ -18,7 +18,13 @@
                         <p class="mb-0">Real-time exchange rates from Magyar Nemzeti Bank</p>
                     </div>
                     <div class="card-body">
-                        <form id="conversionForm">
+                        <!-- Error message for MNB API failure -->
+                        <div th:if="${error}" class="alert alert-warning mb-4">
+                            <h5><i class="fas fa-exclamation-triangle me-2"></i>Service Unavailable</h5>
+                            <p th:text="${error}" class="mb-0"></p>
+                        </div>
+                        
+                        <form id="conversionForm" th:if="${currencies != null and !currencies.empty}">
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="mb-3">
@@ -82,7 +88,7 @@
                     </div>
                 </div>
 
-                <div class="card mt-4">
+                <div class="card mt-4" th:if="${currencies != null and !currencies.empty}">
                     <div class="card-header">
                         <h5><i class="fas fa-chart-line me-2"></i>Current Exchange Rates</h5>
                     </div>
